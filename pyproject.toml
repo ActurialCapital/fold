@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "fold"
+version = "0.1.0"
+description = "Time-series cross-validation on steroids. Multi-purpose. Fully compatible with scikit-learn."
+authors = ["ActurialCapital"]
+license = "0.1.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.4"
+pandas = "^2.2.2"
+scikit-learn = "^1.4.2"
+numba = "^0.59.1"
+dateparser = "^1.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
