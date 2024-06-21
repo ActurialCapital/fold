@@ -36,6 +36,8 @@ class ExpandingSplit(BaseModel):
         Whether the right bound is inclusive, by default False.
     constraints : BaseTool, optional
         Constraints for the splits, by default None.
+    backwards : bool, optional
+        Whether to split in reverse order, by default False.
     split_labels : range, optional
         Labels for the splits, by default None.
     sample_labels : range, optional
@@ -122,6 +124,7 @@ class ExpandingSplit(BaseModel):
         index_bounds: tp.Optional[bool] = False,
         right_inclusive: tp.Optional[bool] = False,
         constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
         split_labels: tp.Optional[range] = None,
         sample_labels: tp.Optional[range] = None,
     ):
@@ -165,7 +168,7 @@ class ExpandingSplit(BaseModel):
                     range_format=range_format,
                     freq=freq
                 )
-                new_split = model.split(split, backwards=False)
+                new_split = model.split(split, backwards=backwards)
 
                 def _lambda_func(x): return SplitPeriod.get_period_bounds(
                     x,
@@ -183,7 +186,7 @@ class ExpandingSplit(BaseModel):
         super().__init__(
             index,
             splits,
-            backwards=False,
+            backwards=backwards,
             allow_zero_len=allow_zero_len,
             range_format=range_format,
             freq=freq,
@@ -192,122 +195,3 @@ class ExpandingSplit(BaseModel):
             sample_labels=sample_labels,
         )
 
-
-class ExpandingBackwardSplit(BaseModel):
-    """
-    Split index backwards with an expanding range.
-
-    Parameters
-    ----------
-    index : range
-        The range of the index to be split.
-    min_length : str, int, float, pd.Timedelta
-        The minimum length of the expanding range. It can be a float between
-        0 and 1 to make it relative to the length of the index.
-    offset : str, int, float, pd.Timedelta
-        The offset after the right bound of the previous range from which the 
-        next range should start. It can also be a float relative to the index 
-        length.
-    split : int, float, slice, BaseTool, BasePeriod, optional
-        The specific split to apply, by default None.
-    allow_zero_len : bool, optional
-        Whether to allow zero-length splits, by default False.
-    range_format : str, optional
-        Format for the range, by default None.
-    freq : str, int, float, Offset, pd.Timedelta, optional
-        Frequency of the index, by default "auto".
-    index_bounds : bool, optional
-        Whether to use index bounds, by default False.
-    right_inclusive : bool, optional
-        Whether the right bound is inclusive, by default False.
-    constraints : BaseTool, optional
-        Constraints for the splits, by default None.
-    split_labels : range, optional
-        Labels for the splits, by default None.
-    sample_labels : range, optional
-        Labels for the samples, by default None.
-
-    """
-
-    def __init__(
-        self,
-        index: range,
-        min_length: str | int | float | pd.Timedelta,
-        offset: str | int | float | pd.Timedelta,
-        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
-        allow_zero_len: tp.Optional[bool] = False,
-        range_format: tp.Optional[str] = None,
-        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = "auto",
-        index_bounds: tp.Optional[bool] = False,
-        right_inclusive: tp.Optional[bool] = False,
-        constraints: tp.Optional[BaseTool] = None,
-        split_labels: tp.Optional[range] = None,
-        sample_labels: tp.Optional[range] = None
-    ):
-
-        index = prepare_dt_index(index)
-
-        try:
-            freq = infer_index_freq(index, freq, allow_numeric=False)
-        except Exception:
-            freq = None
-
-        splits = []
-        bounds = []
-        while True:
-            if len(splits) == 0:
-                new_split = RelativePeriod(
-                    length=min_length,
-                    out_of_bounds="keep",
-                ).to_slice(total_len=len(index), index=index, freq=freq)
-            else:
-                prev_end = bounds[-1][-1][-1]
-                new_split = RelativePeriod(
-                    offset=offset,
-                    offset_anchor="prev_end",
-                    offset_space="all",
-                    length=-1.0,
-                    out_of_bounds="keep",
-                ).to_slice(total_len=len(index), prev_end=prev_end, index=index, freq=freq)
-                if new_split.stop <= prev_end:
-                    raise ValueError(
-                        "Infinite loop detected. Provide a positive offset.")
-            if new_split.start < 0:
-                raise ValueError("Range start cannot be negative")
-            if new_split.stop > len(index):
-                break
-            if split is not None:
-                model = SplitPeriod(
-                    period=new_split,
-                    index=index,
-                    allow_zero_len=allow_zero_len,
-                    range_format=range_format,
-                    freq=freq
-                )
-                new_split = model.split(split, backwards=True)
-
-                def _lambda_func(x): return SplitPeriod.get_period_bounds(
-                    x,
-                    index=index,
-                    index_bounds=index_bounds,
-                    right_inclusive=right_inclusive,
-                    # check_constant=check_constant,
-                    freq=freq
-                )
-                bounds.append(tuple(map(_lambda_func, new_split)))
-
-            else:
-                bounds.append(((new_split.start, new_split.stop),))
-            splits.append(new_split)
-
-        super().__init__(
-            index,
-            splits,
-            backwards=True,
-            allow_zero_len=allow_zero_len,
-            range_format=range_format,
-            freq=freq,
-            constraints=constraints,
-            split_labels=split_labels,
-            sample_labels=sample_labels,
-        )

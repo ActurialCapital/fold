@@ -58,6 +58,7 @@ class SklearnFold(BaseModel):
         sk_model: BaseCrossValidator,
         groups: tp.Optional[str | float | int | bool | np.ndarray] = None,
         constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
         split_labels: tp.Optional[range] = None,
         sample_labels: tp.Optional[range] = None,
     ):

@@ -258,8 +258,8 @@ if __name__ == '__main__':
     
     #### Calendar Split
     
-    from fold import CalendarQuarterSplit
-    model = CalendarQuarterSplit(
+    from fold import CalendarSplit
+    model = CalendarSplit(
         index,
         n_train=2,
         n_test=1,
@@ -282,47 +282,32 @@ if __name__ == '__main__':
     
     # [110 rows x 2 columns]
     
-    #### Grouper Split
+    #### Period Split
     
-    from fold import GrouperSplit
-    model = GrouperSplit(
+    from fold import PeriodSplit
+    model = PeriodSplit(
         index,
-        by=index.year,
-    #     split=0.5,  
-        sample_labels=['IS', 'OOS']
+        n_train=(10, 'Y'),
+        n_test=(2, 'Q'),
+        sample_labels=["IS", "OOS"]
     )
     print(model.get_bounds(index_bounds=True))
-    # bound            start        end
-    #      sample                      
-    # 2010 IS     2010-10-13 2010-11-22
-    #      OOS    2010-11-22 2011-01-01
-    # 2011 IS     2011-01-01 2011-07-02
-    #      OOS    2011-07-02 2012-01-01
-    # 2012 IS     2012-01-01 2012-07-02
-    #      OOS    2012-07-02 2013-01-01
-    # 2013 IS     2013-01-01 2013-07-02
-    #      OOS    2013-07-02 2014-01-01
-    # 2014 IS     2014-01-01 2014-07-02
-    #      OOS    2014-07-02 2015-01-01
-    # 2015 IS     2015-01-01 2015-07-02
-    #      OOS    2015-07-02 2016-01-01
-    # 2016 IS     2016-01-01 2016-07-02
-    #      OOS    2016-07-02 2017-01-01
-    # 2017 IS     2017-01-01 2017-07-02
-    #      OOS    2017-07-02 2018-01-01
-    # 2018 IS     2018-01-01 2018-07-02
-    #      OOS    2018-07-02 2019-01-01
-    # 2019 IS     2019-01-01 2019-07-02
-    #      OOS    2019-07-02 2020-01-01
-    # 2020 IS     2020-01-01 2020-07-02
-    #      OOS    2020-07-02 2021-01-01
-    # 2021 IS     2021-01-01 2021-07-02
-    #      OOS    2021-07-02 2022-01-01
-    # 2022 IS     2022-01-01 2022-07-02
-    #      OOS    2022-07-02 2023-01-01
-    # 2023 IS     2023-01-01 2023-07-02
-    #      OOS    2023-07-02 2024-01-01
-    # 2024 IS     2024-01-01 2024-03-27
+    # bound             start        end
+    # split sample                      
+    # 0     IS     2010-07-01 2020-07-01
+    #       OOS    2020-07-01 2021-01-01
+    # 1     IS     2011-01-01 2021-01-01
+    #       OOS    2021-01-01 2021-07-01
+    # 2     IS     2011-07-01 2021-07-01
+    #       OOS    2021-07-01 2022-01-01
+    # 3     IS     2012-01-01 2022-01-01
+    #       OOS    2022-01-01 2022-07-01
+    # 4     IS     2012-07-01 2022-07-01
+    #       OOS    2022-07-01 2023-01-01
+    # 5     IS     2013-01-01 2023-01-01
+    #       OOS    2023-01-01 2023-07-01
+    # 6     IS     2013-07-01 2023-07-01
+    #       OOS    2023-07-01 2024-01-01
     
     #### Custom Function Split
     

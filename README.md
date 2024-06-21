@@ -93,9 +93,7 @@ $ git clone https://github.com/ActurialCapital/fold.git
 <!-- USAGE EXAMPLES -->
 ## Getting Started
 
-To use Fold, import the necessary modules and classes in your Python script.
-
-Create `X` and `y` numpy `array` and a fixed frequency pandas `DatetimeIndex` object, for example purposes:
+To demonstrate the use of `fold`, we created `numpy` arrays `X` and `y`, along with a `pandas.DatetimeIndex` object with a fixed frequency.
 
 ```python
 >>> import pandas as pd
@@ -393,11 +391,12 @@ Create `X` and `y` numpy `array` and a fixed frequency pandas `DatetimeIndex` ob
 #### Calendar Split
 
 ```python
->>> from fold import CalendarQuarterSplit
->>> model = CalendarQuarterSplit(
+>>> from fold import CalendarSplit
+>>> model = CalendarSplit(
 ...     index,
 ...     n_train=2,
 ...     n_test=1,
+...     every='YS',
 ...     sample_labels=["IS", "OOS"]
 ... )
 >>> print(model.get_bounds(index_bounds=True))
@@ -416,6 +415,37 @@ Create `X` and `y` numpy `array` and a fixed frequency pandas `DatetimeIndex` ob
 #       OOS    2023-10-01 2024-01-01
 
 # [110 rows x 2 columns]
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+#### Period Split
+
+```python
+>>> from fold import PeriodSplit
+>>> model = PeriodSplit(
+...     index,
+...     n_train=(10, 'Y'),
+...     n_test=(2, 'Q'),
+...     sample_labels=["IS", "OOS"]
+... )
+>>> print(model.get_bounds(index_bounds=True))
+# bound             start        end
+# split sample                      
+# 0     IS     2010-07-01 2020-07-01
+#       OOS    2020-07-01 2021-01-01
+# 1     IS     2011-01-01 2021-01-01
+#       OOS    2021-01-01 2021-07-01
+# 2     IS     2011-07-01 2021-07-01
+#       OOS    2021-07-01 2022-01-01
+# 3     IS     2012-01-01 2022-01-01
+#       OOS    2022-01-01 2022-07-01
+# 4     IS     2012-07-01 2022-07-01
+#       OOS    2022-07-01 2023-01-01
+# 5     IS     2013-01-01 2023-01-01
+#       OOS    2023-01-01 2023-07-01
+# 6     IS     2013-07-01 2023-07-01
+#       OOS    2023-07-01 2024-01-01
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

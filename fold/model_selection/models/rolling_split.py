@@ -41,6 +41,8 @@ class RollingSplit(BaseModel):
         Whether the right bound is inclusive or not, by default False.
     constraints : BaseTool, optional
         Additional constraints, by default None.
+    backwards : bool, optional
+        Whether to split in reverse order, by default False.
     split_labels : range, optional
         Labels for the split, by default None.
     sample_labels : range, optional
@@ -150,6 +152,7 @@ class RollingSplit(BaseModel):
         index_bounds: tp.Optional[bool] = False,
         right_inclusive: tp.Optional[bool] = False,
         constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
         split_labels: tp.Optional[range] = None,
         sample_labels: tp.Optional[range] = None
     ):
@@ -221,7 +224,7 @@ class RollingSplit(BaseModel):
                     range_format=range_format,
                     freq=freq
                 )
-                new_split = model.split(split, backwards=False)
+                new_split = model.split(split, backwards=backwards)
 
                 data = tuple(map(
                     lambda x: SplitPeriod.get_period_bounds(
@@ -243,7 +246,7 @@ class RollingSplit(BaseModel):
         super().__init__(
             index,
             splits,
-            backwards=False,
+            backwards=backwards,
             allow_zero_len=allow_zero_len,
             range_format=range_format,
             freq=freq,
@@ -252,197 +255,3 @@ class RollingSplit(BaseModel):
             sample_labels=sample_labels,
         )
 
-
-class RollingBackwardSplit(BaseModel):
-    """
-    Initialize a RollingBackwardSplit instance to create rolling backward 
-    ranges of fixed length.
-
-    Parameters
-    ----------
-    index : range
-        The index to be used for the rolling range.
-    length : str, int, float, pd.Timedelta
-        The fixed length of each rolling range segment.
-    offset : str, int, float, pd.Timedelta, optional
-        The offset value for each range, by default 0.
-    offset_anchor : str, optional
-        The anchor point for the offset, by default "prev_end".
-    offset_anchor_set : int, optional
-        The set from the previous range to be used as an offset anchor, 
-        by default 0.
-    offset_space : str, optional
-        The spacing for the offset, by default "prev".
-    split : int, float, slice, BaseTool, BasePeriod, optional
-        Ranges to split the range into, by default None.
-    allow_zero_len : bool, optional
-        Whether to allow zero-length ranges, by default False.
-    range_format : str, optional
-        The format of the range, by default None.
-    freq : str, int, float, Offset, pd.Timedelta, optional
-        The index frequency in case it cannot be parsed from `index`, 
-        by default "auto".
-    index_bounds : bool, optional
-        Whether to use index bounds or not, by default False.
-    right_inclusive : bool, optional
-        Whether the right bound is inclusive or not, by default False.
-    sort : bool, optional
-        If True, sort splitted data.
-    constraints : BaseTool, optional
-        Additional constraints, by default None.
-    split_labels : range, optional
-        Labels for the split, by default None.
-    sample_labels : range, optional
-        Labels for the set, by default None.
-
-    Examples
-    --------
-    Example 1: Divide a range into a set of non-overlapping ranges:
-
-    >>> index = pd.date_range("2020", "2021", freq="D")
-    >>> model = RollingBackwardSplit(index, offset=-1, length=30)
-    >>> model.get_bounds(index_bounds=True)
-    ...
-
-    Example 2: Divide a range into ranges, each split into 1/2:
-
-    >>> model = RollingBackwardSplit(
-    ...     index,
-    ...     60,
-    ...     split=1/2,
-    ...     sample_labels=["IS", "OOS"]
-    ... )
-    >>> model.get_bounds(index_bounds=True)
-    ...
-
-    Example 3: Make the ranges above non-overlapping by using the right 
-    bound of the last set as an offset anchor:
-
-    >>> model = RollingBackwardSplit(
-    ...     index,
-    ...     60,
-    ...     offset=-1,
-    ...     offset_anchor_set=1,
-    ...     split=1/2,
-    ...     sample_labels=["IS", "OOS"]
-    ... )
-    >>> model.get_bounds(index_bounds=True)
-    ...
-    """
-
-    def __init__(
-        self,
-        index: range,
-        length: str | int | float | pd.Timedelta,
-        offset: tp.Optional[str | int | float | pd.Timedelta] = 0,
-        offset_anchor: tp.Optional[str] = "prev_end",
-        offset_anchor_set: tp.Optional[int] = 0,
-        offset_space: tp.Optional[str] = "prev",
-        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
-        allow_zero_len: tp.Optional[bool] = False,
-        range_format: tp.Optional[str] = None,
-        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = "auto",
-        index_bounds: tp.Optional[bool] = False,
-        right_inclusive: tp.Optional[bool] = False,
-        sort: tp.Optional[bool] = False,
-        constraints: tp.Optional[BaseTool] = None,
-        split_labels: tp.Optional[range] = None,
-        sample_labels: tp.Optional[range] = None
-    ):
-
-        index = prepare_dt_index(index)
-        try:
-            freq = infer_index_freq(index, freq, allow_numeric=False)
-        except Exception:
-            freq = None
-
-        splits = []
-        bounds = []
-        while True:
-            if len(splits) == 0:
-                model = RelativePeriod(
-                    length=-length,
-                    offset_anchor="end",
-                    out_of_bounds="keep",
-                )
-                new_split = model.to_slice(
-                    total_len=len(index),
-                    index=index,
-                    freq=freq
-                )
-
-            else:
-                if offset_anchor_set is None:
-                    prev_start = bounds[-1][0][0]
-                    prev_end = bounds[-1][-1][1]
-
-                else:
-                    prev_start, prev_end = bounds[-1][offset_anchor_set]
-
-                model = RelativePeriod(
-                    offset=offset,
-                    offset_anchor=offset_anchor,
-                    offset_space=offset_space,
-                    length=-length,
-                    length_space="all",
-                    out_of_bounds="keep",
-                )
-                new_split = model.to_slice(
-                    total_len=len(index),
-                    prev_start=prev_start,
-                    prev_end=prev_end,
-                    index=index,
-                    freq=freq
-                )
-
-                if new_split.stop >= bounds[-1][-1][1]:
-                    raise ValueError(
-                        "Infinite loop detected. Provide a positive offset."
-                    )
-
-            if new_split.start < 0:
-                break
-
-            if new_split.stop > len(index):
-                raise ValueError(
-                    "Range stop cannot exceed index length"
-                )
-
-            if split is not None:
-                model = SplitPeriod(
-                    period=new_split,
-                    index=index,
-                    allow_zero_len=allow_zero_len,
-                    range_format=range_format,
-                    freq=freq
-                )
-                new_split = model.split(split, backwards=True)
-
-                data = tuple(map(
-                    lambda x: SplitPeriod.get_period_bounds(
-                        x,
-                        index=index,
-                        index_bounds=index_bounds,
-                        right_inclusive=right_inclusive,
-                        freq=freq
-                    ),
-                    new_split,
-                ))
-                bounds.append(data)
-
-            else:
-                bounds.append(((new_split.start, new_split.stop),))
-
-            splits.append(new_split)
-
-        super().__init__(
-            index,
-            splits[::-1] if sort else splits,
-            backwards=True,
-            allow_zero_len=allow_zero_len,
-            range_format=range_format,
-            freq=freq,
-            constraints=constraints,
-            split_labels=split_labels,
-            sample_labels=sample_labels,
-        )

@@ -417,22 +417,6 @@ class IntervalSplit(BaseModel):
     ----------
     index : range
         The range of the index to be split.
-    split : int, float, slice, BaseTool, or BasePeriod, optional
-        Split criteria. Default is None.
-    allow_zero_len : bool, optional
-        Allow zero length. Default is False.
-    allow_zero_len : bool, optional
-        Allow zero length. Default is False.
-    range_format : str, optional
-        Format for the range. Default is None.
-    freq : str, int, float, Offset, or pd.Timedelta, optional
-        Frequency of the index. Default is "auto".
-    constraints : BaseTool, optional
-        Constraints to apply. Default is None.
-    split_labels : range, optional
-        Labels for the splits. Default is None.
-    sample_labels : range, optional
-        Labels for the samples. Default is None.
     index_freq : str, int, float, Offset, or pd.Timedelta, optional
         Frequency of the index, e.g., 'D' for daily, 'M' for monthly.
     every : str, int, float, Offset, or pd.Timedelta, optional
@@ -507,6 +491,24 @@ class IntervalSplit(BaseModel):
         Prior to this, get their timezone aligned to the timezone of the index. 
         If `kind` is 'indices', `start` and `end` get wrapped with NumPy. If 
         kind` is 'bounds', `.Resampler.map_bounds_to_source_ranges` is used.
+    split : int, float, slice, BaseTool, or BasePeriod, optional
+        Split criteria. Default is None.
+    allow_zero_len : bool, optional
+        Allow zero length. Default is False.
+    allow_zero_len : bool, optional
+        Allow zero length. Default is False.
+    range_format : str, optional
+        Format for the range. Default is None.
+    freq : str, int, float, Offset, or pd.Timedelta, optional
+        Frequency of the index. Default is "auto".
+    constraints : BaseTool, optional
+        Constraints to apply. Default is None.
+    backwards : bool, optional
+        Whether to split in reverse order, by default False.
+    split_labels : range, optional
+        Labels for the splits. Default is None.
+    sample_labels : range, optional
+        Labels for the samples. Default is None.
 
     Example
     -------
@@ -631,13 +633,6 @@ class IntervalSplit(BaseModel):
     def __init__(
         self,
         index: range,
-        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
-        allow_zero_len: tp.Optional[bool] = False,
-        range_format: tp.Optional[str] = None,
-        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        constraints: tp.Optional[BaseTool] = None,
-        split_labels: tp.Optional[range] = None,
-        sample_labels: tp.Optional[range] = None,
         index_freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
         every: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
         normalize_every: tp.Optional[bool] = False,
@@ -654,6 +649,14 @@ class IntervalSplit(BaseModel):
         add_start_delta: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
         add_end_delta: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
         kind: tp.Optional[str] = None,
+        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
+        allow_zero_len: tp.Optional[bool] = False,
+        range_format: tp.Optional[str] = None,
+        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
+        constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
+        split_labels: tp.Optional[range] = None,
+        sample_labels: tp.Optional[range] = None,
     ):
 
         index = prepare_dt_index(index)
@@ -689,14 +692,14 @@ class IntervalSplit(BaseModel):
                     range_format=range_format,
                     freq=freq
                 )
-                new_split = model.split(split, backwards=False)
+                new_split = model.split(split, backwards=backwards)
 
             splits.append(new_split)
 
         super().__init__(
             index,
             splits,
-            backwards=False,
+            backwards=backwards,
             allow_zero_len=allow_zero_len,
             range_format=range_format,
             freq=freq,
@@ -705,161 +708,3 @@ class IntervalSplit(BaseModel):
             sample_labels=sample_labels,
         )
 
-
-class IntervalBackwardSplit(BaseModel):
-    """
-    Split index backwards by intervals.
-
-    Parameters
-    ----------
-    index_freq : str, int, float, Offset, or pd.Timedelta, optional
-        Frequency of the index, e.g., 'D' for daily, 'M' for monthly.
-    every : str, int, float, Offset, or pd.Timedelta, optional
-        Frequency either as an integer or timedelta.
-        Gets translated into `start` and `end` arrays by creating a range. If
-        integer, an index sequence from `start` to `end` (exclusive) is created 
-        and 'indices' as `kind` is used. If timedelta-like, a date sequence 
-        from `start` to `end` (inclusive) is created and 'bounds' as `kind` is 
-        used. If `start_time` and `end_time` are not None and `every`, `start`, 
-        and `end` are None, `every` defaults to one day.
-    normalize_every : bool, optional
-        Normalize start/end dates to midnight before generating date range.
-    split_every : bool, optional
-        Whether to split the sequence generated using `every` into `start` and
-        `end` arrays. After creation, and if `split_every` is True, an index 
-        range is created from each pair of elements in the generated sequence. 
-        Otherwise, the entire sequence is assigned to `start` and `end`, and 
-        only time and delta instructions can be used to further differentiate 
-        between them. Forced to False if `every`, `start_time`, and `end_time` 
-        are not None and `fixed_start` is False.
-    start_time : str or datetime.time, optional
-        Start time of the day either as a (human-readable) string or 
-        `datetime.time`. Every datetime in `start` gets floored to the daily 
-        frequency, while `start_time` gets converted into a timedelta using 
-        `.datetime_.time_to_timedelta` and added to `add_start_delta`. Index 
-        must be datetime-like.
-    end_time : str or datetime.time, optional
-        End time of the day either as a (human-readable) string or 
-        `datetime.time`. Every datetime in `end` gets floored to the daily 
-        frequency, while `end_time` gets converted into a timedelta using 
-        `.datetime_.time_to_timedelta` and added to `add_end_delta`. Index must 
-        be datetime-like.
-    lookback_period : str, int, float, Offset, or pd.Timedelta, optional
-        Lookback period either as an integer or offset. If `lookback_period` is 
-        set, `start` becomes `end-lookback_period`. If `every` is not None, the
-        sequence is generated from `start+lookback_period` to `end` and then 
-        assigned to `end`. If string, gets converted into an offset using 
-        pandas. If integer, gets multiplied by the frequency of the index if 
-        the index is not integer.
-    start : str, int, float, Offset, or pd.Timestamp, optional
-        Start index/label or a sequence of such. Gets converted into datetime 
-        format whenever possible. Gets broadcasted together with `end`.
-    end : str, int, float, Offset, or pd.Timestamp, optional
-        End index/label or a sequence of such. Gets converted into datetime 
-        format whenever possible. Gets broadcasted together with `start`.
-    exact_start : bool, optional
-        Whether the first index in the `start` array should be exactly `start`.
-        Depending on `every`, the first index picked by `pd.date_range` may 
-        happen after `start`. In such a case, `start` gets injected before the 
-        first index generated by `pd.date_range`. Cannot be used together with 
-        `lookback_period`.
-    fixed_start : bool, optional
-        Whether all indices in the `start` array should be exactly `start`. 
-        Works only together with `every`. Cannot be used together with 
-        `lookback_period`.
-    closed_start : bool, optional
-        Whether `start` should be inclusive.
-    closed_end : bool, optional
-        Whether `end` should be inclusive.
-    add_start_delta :  str, int, float, Offset, or pd.Timedelta, optional
-        Offset to be added to each in `start`. If string, gets converted into 
-        an offset using pandas.
-    add_end_delta : str, int, float, Offset, or pd.Timedelta, optional
-        Offset to be added to each in `end`. If string, gets converted into an
-        offset using pandas.
-    kind : str, optional
-        Kind of data in `on`: indices, labels, or bounds.
-        If None, gets assigned to `indices` if `start` and `end` contain 
-        integer data, to `bounds` if `start`, `end`, and index are 
-        datetime-like, otherwise to `labels`. If `kind` is 'labels', `start` 
-        and `end` get converted into indices using `pd.Index.get_indexer`.
-        Prior to this, get their timezone aligned to the timezone of the index. 
-        If `kind` is 'indices', `start` and `end` get wrapped with NumPy. If 
-        kind` is 'bounds', `.Resampler.map_bounds_to_source_ranges` is used.
-    """
-    def __init__(
-        self,
-        index: range,
-        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
-        allow_zero_len: tp.Optional[bool] = False,
-        range_format: tp.Optional[str] = None,
-        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        constraints: tp.Optional[BaseTool] = None,
-        split_labels: tp.Optional[range] = None,
-        sample_labels: tp.Optional[range] = None,
-        index_freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        every: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        normalize_every: tp.Optional[bool] = False,
-        split_every: tp.Optional[bool] = True,
-        start_time: tp.Optional[str | time] = None,
-        end_time: tp.Optional[str | time] = None,
-        lookback_period: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        start: tp.Optional[str | int | float | Offset | pd.Timestamp] = None,
-        end: tp.Optional[str | int | float | Offset | pd.Timestamp] = None,
-        exact_start: tp.Optional[bool] = False,
-        fixed_start: tp.Optional[bool] = False,
-        closed_start: tp.Optional[bool] = True,
-        closed_end: tp.Optional[bool] = False,
-        add_start_delta: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        add_end_delta: tp.Optional[str | int | float | Offset | pd.Timedelta] = None,
-        kind: tp.Optional[str] = None,
-    ):
-
-        index = prepare_dt_index(index)
-
-        start_idxs, stop_idxs = get_index_ranges(
-            index,
-            skip_not_found=True,
-            index_freq=index_freq,
-            every=every,
-            normalize_every=normalize_every,
-            split_every=split_every,
-            start_time=start_time,
-            end_time=end_time,
-            lookback_period=lookback_period,
-            start=start,
-            end=end,
-            exact_start=exact_start,
-            fixed_start=fixed_start,
-            closed_start=closed_start,
-            closed_end=closed_end,
-            add_start_delta=add_start_delta,
-            add_end_delta=add_end_delta,
-            kind=kind,
-        )
-        splits = []
-        for start, stop in zip(start_idxs, stop_idxs):
-            new_split = slice(start, stop)
-            if split is not None:
-                model = SplitPeriod(
-                    period=new_split,
-                    index=index,
-                    allow_zero_len=allow_zero_len,
-                    range_format=range_format,
-                    freq=freq
-                )
-                new_split = model.split(split, backwards=True)
-
-            splits.append(new_split)
-
-        super().__init__(
-            index,
-            splits,
-            backwards=True,
-            allow_zero_len=allow_zero_len,
-            range_format=range_format,
-            freq=freq,
-            constraints=constraints,
-            split_labels=split_labels,
-            sample_labels=sample_labels,
-        )

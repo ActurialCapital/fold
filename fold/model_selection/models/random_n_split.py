@@ -61,6 +61,8 @@ class RandomNumberSplit(BaseModel):
         Frequency of the time-series. Defaults to "auto".
     constraints : BaseTool, optional
         Constraints for the splits.
+    backwards : bool, optional
+        Whether to split in reverse order, by default False.
     split_labels : range, optional
         Labels for the splits.
     sample_labels : range, optional
@@ -124,6 +126,7 @@ class RandomNumberSplit(BaseModel):
         range_format: tp.Optional[str] = None,
         freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = "auto",
         constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
         split_labels: tp.Optional[range] = None,
         sample_labels: tp.Optional[range] = None,
     ):
@@ -357,6 +360,7 @@ class RandomNumberSplit(BaseModel):
             range_format=range_format,
             freq=freq,
             constraints=constraints,
+            backwards=backwards,
             split_labels=split_labels,
             sample_labels=sample_labels,
         )

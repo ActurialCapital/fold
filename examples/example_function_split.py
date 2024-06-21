@@ -91,11 +91,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 
@@ -132,16 +132,7 @@ if __name__ == '__main__':
         index: pd.DatetimeIndex,
         prev_start: pd.Timestamp
     ):
-        """Define the split function for creating training and testing periods.
-
-        Parameters
-        ----------
-        index : pd.DatetimeIndex
-            The index of the time series data.
-        prev_start : pd.Timestamp
-            The start date of the previous split.
-
-        """
+        """Define the split function for creating training and testing periods."""
         # If this is the first split, prev_start (i.e., the start index of the
         # previous split) will be None
         if prev_start is None:
@@ -230,11 +221,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 
@@ -319,11 +310,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 

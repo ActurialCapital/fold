@@ -77,11 +77,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 
@@ -157,11 +157,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 
@@ -236,11 +236,11 @@ if __name__ == '__main__':
     print(model.get_split_coverage())
     print(model.get_split_coverage(overlapping=True))
 
-    # Set coverage
+    # Sample coverage
     print(model.get_sample_coverage())
     print(model.get_sample_coverage(relative=True))
 
-    # Range coverage
+    # Period coverage
     print(model.get_period_coverage())
     print(model.get_period_coverage(relative=True))
 

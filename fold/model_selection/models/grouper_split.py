@@ -34,6 +34,8 @@ class GrouperSplit(BaseModel):
         Frequency of the index, by default "auto".
     constraints : BaseTool, optional
         Constraints for the splits, by default None.
+    backwards : bool, optional
+        Whether to split in reverse order, by default False.
     split_labels : range, optional
         Labels for the splits, by default None.
     sample_labels : range, optional
@@ -225,6 +227,7 @@ class GrouperSplit(BaseModel):
         range_format: tp.Optional[str] = None,
         freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = "auto",
         constraints: tp.Optional[BaseTool] = None,
+        backwards: tp.Optional[bool] = False,
         split_labels: tp.Optional[range] = None,
         sample_labels: tp.Optional[range] = None
     ):
@@ -253,7 +256,7 @@ class GrouperSplit(BaseModel):
                     range_format=range_format,
                     freq=freq
                 )
-                new_split = model.split(split, backwards=False)
+                new_split = model.split(split, backwards=backwards)
 
             else:
                 new_split = [new_split]
@@ -266,7 +269,7 @@ class GrouperSplit(BaseModel):
         super().__init__(
             index,
             splits,
-            backwards=False,
+            backwards=backwards,
             allow_zero_len=allow_zero_len,
             range_format=range_format,
             freq=freq,
@@ -275,96 +278,3 @@ class GrouperSplit(BaseModel):
             sample_labels=sample_labels,
         )
 
-
-class GrouperBackwardSplit(BaseModel):
-    """
-    Split backwards by group.
-
-    Parameters
-    ----------
-    index : range
-        The range of the index to be split.
-    by : str, GroupBy, Resampler, Offset, BaseTool, pd.Timedelta
-        The criteria by which to group the index.
-    groupby_kwargs : Dict[str, Any], optional
-        Keyword arguments for the groupby operation, by default None.
-    grouper_kwargs : Dict[str, Any], optional
-        Keyword arguments for the grouper, by default None.
-    split : int, float, slice, BaseTool, BasePeriod, optional
-        The specific split to apply, by default None.
-    allow_zero_len : bool, optional
-        Whether to allow zero-length splits, by default False.
-    range_format : str, optional
-        Format for the range, by default None.
-    freq : str, int, float, Offset, pd.Timedelta, optional
-        Frequency of the index, by default "auto".
-    constraints : BaseTool, optional
-        Constraints for the splits, by default None.
-    split_labels : range, optional
-        Labels for the splits, by default None.
-    sample_labels : range, optional
-        Labels for the samples, by default None.
-
-    """
-
-    def __init__(
-        self,
-        index: range,
-        by: str | GroupBy | Resampler | Offset | BaseTool | pd.Timedelta,
-        groupby_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
-        grouper_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
-        split: tp.Optional[int | float | slice | BaseTool | BasePeriod] = None,
-        allow_zero_len: tp.Optional[bool] = False,
-        range_format: tp.Optional[str] = None,
-        freq: tp.Optional[str | int | float | Offset | pd.Timedelta] = "auto",
-        constraints: tp.Optional[BaseTool] = None,
-        split_labels: tp.Optional[range] = None,
-        sample_labels: tp.Optional[range] = None
-    ):
-
-        index = prepare_dt_index(index)
-
-        try:
-            freq = infer_index_freq(index, freq, allow_numeric=False)
-        except Exception:
-            freq = None
-
-        grouper_kwargs = grouper_kwargs or {}
-        grouper = get_grouper(
-            index,
-            by,
-            groupby_kwargs=groupby_kwargs,
-            **grouper_kwargs
-        )
-        splits = []
-        indices = []
-        for i, new_split in enumerate(grouper.iter_group_idxs()):
-            if split is not None:
-                model = SplitPeriod(
-                    period=new_split,
-                    index=index,
-                    allow_zero_len=allow_zero_len,
-                    range_format=range_format,
-                    freq=freq
-                )
-                new_split = model.split(split, backwards=True)
-
-            else:
-                new_split = [new_split]
-            splits.append(new_split)
-            indices.append(i)
-
-        if split_labels is None:
-            split_labels = grouper.get_index()[indices]
-
-        super().__init__(
-            index,
-            splits,
-            backwards=True,
-            allow_zero_len=allow_zero_len,
-            range_format=range_format,
-            freq=freq,
-            constraints=constraints,
-            split_labels=split_labels,
-            sample_labels=sample_labels,
-        )
