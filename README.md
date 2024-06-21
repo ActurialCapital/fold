@@ -1,7 +1,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-<p align="center"><img src="docs/logo.png" alt="logo" width="50%" height="50%"></p>
+<p align="center"><img src="docs/logo.png" alt="logo" width="90%" height="90%"></p>
 
 <!-- TABLE OF CONTENTS -->
 
