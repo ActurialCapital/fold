@@ -27,6 +27,7 @@
             <li><a href="#rolling-optimized-split">Rolling Optimized Split</a></li>
             <li><a href="#interval-split">Interval Split</a></li>
             <li><a href="#calendar-split">Calendar Split</a></li>
+            <li><a href="#period-split">Period Split</a></li>
             <li><a href="#grouper-split">Grouper Split</a></li>
             <li><a href="#custom-function-split">Custom Function Split</a></li>
             <li><a href="#random-split">Random Split</a></li>
