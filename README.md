@@ -83,10 +83,8 @@ This is where `fold` steps in, providing a robust framework to handle the unique
 <!-- GETTING STARTED -->
 ## Installation
 
-To get started with `fold`, you can clone the repository to your local machine. Ensure you have Git installed, then run the following command:
-
 ```sh
-$ git clone https://github.com/ActurialCapital/fold.git
+$ pip install python-fold
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
