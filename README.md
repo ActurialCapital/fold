@@ -3,6 +3,8 @@
 <!-- PROJECT LOGO -->
 <p align="center"><img src="docs/assets/logo.png" alt="logo" width="90%" height="90%"></p>
 
+[![codecov](https://codecov.io/gh/ActurialCapital/fold/graph/badge.svg?token=UCYR7VW094)](https://codecov.io/gh/ActurialCapital/fold)
+
 <!-- TABLE OF CONTENTS -->
 
 <details>
