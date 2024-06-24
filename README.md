@@ -7,7 +7,7 @@
 | Overview | |
 |---|---|
 | **Open Source** |  [![BSD 3-clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/ActurialCapital/fold/blob/main/LICENSE) |
-| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/ActurialCapital/fold/wheels.yml?logo=github)](https://github.com/ActurialCapital/fold/actions/workflows/wheels.yml) [![!codecov](https://img.shields.io/codecov/c/github/ActurialCapital/fold?label=codecov&logo=codecov)](https://codecov.io/gh/ActurialCapital/fold) |
+| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/ActurialCapital/fold/codecove.yml?logo=github)](https://github.com/ActurialCapital/fold/actions/workflows/wheels.yml) [![!codecov](https://img.shields.io/codecov/c/github/ActurialCapital/fold?label=codecov&logo=codecov)](https://codecov.io/gh/ActurialCapital/fold) |
 | **Code** |  [![!pypi](https://img.shields.io/pypi/v/python-fold?color=orange)](https://pypi.org/project/python-fold/) [![!python-versions](https://img.shields.io/pypi/pyversions/python-fold)](https://www.python.org/) |
 | **Downloads** | ![PyPI - Downloads](https://img.shields.io/pypi/dw/python-fold) ![PyPI - Downloads](https://img.shields.io/pypi/dm/python-fold) [![Downloads](https://static.pepy.tech/personalized-badge/python-fold?period=total&units=international_system&left_color=grey&right_color=blue&left_text=cumulative%20(pypi))](https://pepy.tech/project/python-fold) |
 | **Citation** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12514531.svg)](https://doi.org/10.5281/zenodo.12514531) |
