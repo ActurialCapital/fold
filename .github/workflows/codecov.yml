@@ -17,6 +17,7 @@ jobs:
         python-version: 3.11
     - name: Generate coverage report
       run: |
+        pip install -r requirements.txt
         pip install pytest
         pip install pytest-cov
         pytest --cov=./ --cov-report=xml
@@ -31,3 +32,4 @@ jobs:
         name: codecov-umbrella
         token: ${{ secrets.CODECOV_TOKEN }}
         verbose: true
+
