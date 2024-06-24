@@ -15,21 +15,21 @@ jobs:
       uses: actions/setup-python@main
       with:
         python-version: 3.11
-    - name: Generate coverage report
+    - name: Install dependencies
       run: |
         pip install -r requirements.txt
         pip install pytest
         pip install pytest-cov
-        pytest --cov=./ --cov-report=xml
+    - name: Generate coverage report
+      run: |
+        pytest --cov=./ --cov-report=xml:coverage/coverage.xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        directory: ./coverage/reports/
+        file: coverage/coverage.xml
         env_vars: OS,PYTHON
         fail_ci_if_error: true
-        files: ./coverage1.xml,./coverage2.xml,!./cache
         flags: unittests
         name: codecov-umbrella
         token: ${{ secrets.CODECOV_TOKEN }}
         verbose: true
-
