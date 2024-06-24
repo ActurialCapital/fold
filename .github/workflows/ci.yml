@@ -1,20 +1,23 @@
-name: Workflow for Codecov example-python
+name: CodeCov
 on: [push, pull_request]
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      OS: ubuntu-latest
+      PYTHON: '3.11'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - uses: checkout@v3
+      with:
+        fetch-depth: ‘2’
+
+    - name: Setup Python
+      uses: actions/setup-python@master
+      with:
+        python-version: 3.11
+    - name: Generate Report
+      run: |
+        pip install coverage
+        coverage run -m pytest
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v3.1.1
