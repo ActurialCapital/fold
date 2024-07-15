@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-fold"
-version = "0.1.1"
+version = "0.1.2"
 description = "Time-series cross-validation on steroids. Multi-purpose. Fully compatible with scikit-learn."
 authors = ["ActurialCapital"]
 license = "BSD 3-Clause License"
