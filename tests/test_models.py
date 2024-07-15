@@ -1086,7 +1086,12 @@ def test_purged_kfold():
     assert splits_arr[5][0] == slice(21, 31, None)
     assert splits_arr[5][1] == slice(0, 16, None)
 
-  
+def test_period_split():
+    pass
+
+def test_calendar_split():
+    pass
+
 def test_period_transformer():
     assert PeriodTransformer(
         Key("sample", context=dict(sample=slice(10, 20))),

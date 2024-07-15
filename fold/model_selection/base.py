@@ -1,12 +1,17 @@
 import abc
+from dataclasses import asdict
+import typing as tp
 import numpy as np
 import pandas as pd
 from pandas.tseries.offsets import BaseOffset as Offset
-import typing as tp
+from plotly.basedatatypes import BaseFigure
+from plotly.graph_objects import FigureWidget
+import plotly.express as px
 
 from fold.model_selection.config import Config, UpdateConfig
 from fold.model_selection.duration import Duration
 from fold.model_selection.coverage import Coverage
+from fold.model_selection.plots import Layout, Trace, Heatmap
 from fold.tools import (
     substitute,
     BaseTool,
@@ -119,7 +124,7 @@ class BaseModel(Duration, Coverage):
         self._ndim = 2 if len(self._sample_labels) > 1 else config.ndim
         self._index = index
         self._splits_arr = splits_arr
-        
+
         super().__init__(
             index=self.index,
             splits_arr=self.splits_arr,
@@ -128,7 +133,7 @@ class BaseModel(Duration, Coverage):
             split_labels=self.split_labels,
             sample_labels=self.sample_labels
         )
-        
+
     @property
     def split_labels(self) -> pd.Index:
         """
@@ -587,6 +592,98 @@ class BaseModel(Duration, Coverage):
 
         return pd.Series(range_objs, index=keys, dtype=object)
 
+    def plot(
+        self,
+        mask_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        trace_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        add_trace_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        fig: tp.Optional[tp.Any] = None,
+        figure_kwargs: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        layout_kwargs: tp.Optional[Layout] = None,
+    ) -> BaseFigure:
+        """
+        Plot Flow graph of training vs test data.
+
+        Parameters
+        ----------
+        mask_kwargs :tp.Dict[str, tp.Any]
+            Keyword arguments passed to `Splitter.get_iter_set_masks`.
+        trace_kwargs : tp.Dict[str, tp.Any]
+            Keyword arguments passed to `plotly` Heatmap`.
+        add_trace_kwargs : tp.Dict[str, tp.Any] 
+            Keyword arguments passed to `add_trace`.
+        fig : FigureWidget 
+            Figure to add traces to.
+        **layout_kwargs 
+            Keyword arguments for layout.
+
+        Examples
+        --------
+        ```pycon
+        >>> from fold import SklearnFold
+        >>> import pandas as pd
+        >>> from sklearn.model_selection import TimeSeriesSplit
+
+        >>> index = pd.date_range("2010", "2024", freq="W")
+        >>> model = SklearnFold(index, TimeSeriesSplit())
+        >>> model.plot().show()
+        ```
+
+        """
+        trace_kwargs = trace_kwargs or {}
+        add_trace_kwargs = add_trace_kwargs or {}
+        figure_kwargs = figure_kwargs or {}
+        mask_kwargs = mask_kwargs or {}
+        layout_kwargs = asdict(Layout())
+
+        # Figure
+        if fig is None:
+            fig = FigureWidget(**figure_kwargs)
+
+        # Update layout
+        fig.update_layout(**layout_kwargs)
+
+        # Colors
+        colorway = (
+            fig.layout.colorway
+            if fig.layout.colorway is not None
+            else fig.layout.template.layout.colorway
+        )
+        if len(self.sample_labels) > len(colorway):
+            colorway = px.colors.qualitative.Alphabet
+
+        if self.n_splits > 0 and self.n_samples > 0:
+
+            # Loop through Coverage.get_iter_sample_masks
+            for i, mask in enumerate(self.get_iter_sample_masks()):
+                # Data
+                df = mask.ffill()
+                df[mask] = i
+                data = df.transpose().iloc[::-1]
+
+                # Settings
+                color = colorway[i % len(colorway)]
+                name = str(self.sample_labels[i])
+                default_trace = asdict(Trace()) | dict(
+                    x=data.columns,
+                    y=data.index,
+                    legendgroup=str(self.sample_labels[i]),
+                    name=name,
+                    colorscale=[color, color],
+                    hovertemplate="%{x}<br>Split: %{y}<br>Sample: " + name,
+                )
+
+                # Plot
+                fig = Heatmap(
+                    data=data,
+                    trace_kwargs=default_trace | trace_kwargs,
+                    add_trace_kwargs=add_trace_kwargs,
+                    is_y_category=True,
+                    fig=fig,
+                ).figure
+
+        return fig
+
 
 class BasePurgedCV:
     """
@@ -781,13 +878,13 @@ class BasePurgedCV:
             pred_times = pd.Series(pred_times, index=X.index)
         else:
             checks.assert_instance_of(
-                pred_times, 
-                pd.Series, 
+                pred_times,
+                pd.Series,
                 arg_name="pred_times"
             )
             checks.assert_index_equal(
-                X.index, 
-                pred_times.index, 
+                X.index,
+                pred_times.index,
                 check_names=False
             )
         if eval_times is None:

@@ -26,11 +26,11 @@ if __name__ == '__main__':
 
     # Example 1
     # ---------
-    
+
     model = CalendarSplit(
         data.index,
-        n_train = 3,
-        n_test = 1,
+        n_train=3,
+        n_test=1,
         every='YS',
         sample_labels=["IS", "OOS"]
     )
@@ -98,15 +98,15 @@ if __name__ == '__main__':
 
     # Example 2
     # ---------
-    
+
     model = CalendarSplit(
         data.index,
-        n_train = 4,
-        n_test = 2,
+        n_train=4,
+        n_test=2,
         every='QS',
         sample_labels=["IS", "OOS"]
     )
-    
+
     # Base
     print(model.splits_arr)
     print(model.splits_arr.dtype)
