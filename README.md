@@ -6,12 +6,12 @@
 
 | Overview | |
 |---|---|
-| **Open Source** |  [![BSD 3-clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/ActurialCapital/fold/blob/main/LICENSE) |
-| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/ActurialCapital/fold/wheels.yml?logo=github)](https://github.com/ActurialCapital/fold/actions/workflows/wheels.yml) [![!codecov](https://img.shields.io/codecov/c/github/ActurialCapital/fold?label=codecov&logo=codecov)](https://codecov.io/gh/ActurialCapital/fold) |
+| **Open Source** |  [![BSD 3-clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/ActurialCapital/fold/blob/main/LICENSE) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ActurialCapital/fold/graphs/commit-activity) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) |
+| **Tests** | [![!codecov](https://img.shields.io/codecov/c/github/ActurialCapital/fold?label=codecov&logo=codecov)](https://codecov.io/gh/ActurialCapital/fold) |
 | **Code** |  [![!pypi](https://img.shields.io/pypi/v/python-fold?color=orange)](https://pypi.org/project/python-fold/) [![!python-versions](https://img.shields.io/pypi/pyversions/python-fold)](https://www.python.org/) |
 | **Downloads** | ![PyPI - Downloads](https://img.shields.io/pypi/dw/python-fold) ![PyPI - Downloads](https://img.shields.io/pypi/dm/python-fold) [![Downloads](https://static.pepy.tech/personalized-badge/python-fold?period=total&units=international_system&left_color=grey&right_color=blue&left_text=cumulative%20(pypi))](https://pepy.tech/project/python-fold) |
 | **Citation** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12514531.svg)](https://doi.org/10.5281/zenodo.12514531) |
-
+| **Support** | [![buymeacoffee](https://img.shields.io/badge/-Buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/acturialcapital) ![GitHub Sponsors](https://img.shields.io/github/sponsors/acturialcapital?logo=github&label=Github%20sponsors&link=https%3A%2F%2Fgithub.com%2Fsponsors%2FActurialCapital)
 
 <!-- TABLE OF CONTENTS -->
 
@@ -48,6 +48,7 @@
     </li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#support">Support</a></li>
   </ol>
 </details>
 
@@ -723,6 +724,13 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- SUPPORT -->
+## Support
+
+If you found `fold` useful, you can support us with a donation. Your contribution will help to continue developing and improving this project. Many thanks!
+
+<a href="https://www.buymeacoffee.com/acturialcapital"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=skforecast&button_colour=f79939&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00" /></a>
+<br>
 
 <!-- LICENSE -->
 ## License
